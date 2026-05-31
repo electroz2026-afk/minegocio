@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0F6E56">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MiNegocio">
+<link rel="manifest" href="manifest.json">
+<title>MiNegocio</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{--g:#1D9E75;--gd:#0F6E56;--gl:#E1F5EE;--am:#FAEEDA;--re:#FCEBEB;--bl:#E6F1FB;--tx:#1a1a1a;--t2:#6b6b6b;--t3:#9b9b9b;--bg:#f5f5f3;--wh:#fff;--br:rgba(0,0,0,0.1);--sb:env(safe-area-inset-bottom,0px)}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);overflow:hidden}
+/* LAYOUT */
+.app{display:flex;flex-direction:column;height:100vh}
+.content{flex:1;overflow:hidden;position:relative}
+.page{display:none;flex-direction:column;height:100%;position:absolute;inset:0}
+.page.active{display:flex}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:16px 16px calc(16px + var(--sb))}
+/* HEADER */
+.hdr{background:var(--gd);padding:48px 16px 16px;flex-shrink:0}
+.hdr-row{display:flex;justify-content:space-between;align-items:center}
+.hdr h1{color:#fff;font-size:19px;font-weight:700}
+.hdr p{color:rgba(255,255,255,0.65);font-size:12px;margin-top:2px}
+.hdr-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+/* METRICS */
+.metrics{background:var(--gd);padding:0 16px 16px;display:flex;gap:8px;overflow-x:auto;flex-shrink:0}
+.metrics::-webkit-scrollbar{display:none}
+.met{background:rgba(255,255,255,0.15);border-radius:10px;padding:10px 14px;min-width:120px;flex-shrink:0}
+.met-l{color:rgba(255,255,255,0.6);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+.met-v{color:#fff;font-size:19px;font-weight:700;margin-top:3px}
+.met-s{color:rgba(255,255,255,0.5);font-size:10px;margin-top:1px}
+.met.warn{background:rgba(226,75,74,0.35)}
+/* CARDS */
+.card{background:var(--wh);border-radius:12px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 4px rgba(0,0,0,0.08)}
+.card-row{display:flex;justify-content:space-between;align-items:center}
+/* SECTION TITLE */
+.stit{font-size:11px;font-weight:700;color:var(--t2);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;margin-top:8px}
+/* BADGES */
+.badge{display:inline-block;padding:2px 9px;border-radius:20px;font-size:11px;font-weight:600}
+.b-g{background:var(--gl);color:#0F6E56}
+.b-a{background:var(--am);color:#854F0B}
+.b-r{background:var(--re);color:#A32D2D}
+.b-b{background:var(--bl);color:#185FA5}
+.b-gr{background:#F1EFE8;color:#5F5E5A}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 16px;border-radius:10px;border:none;font-size:14px;font-weight:600;cursor:pointer;transition:opacity .15s;width:100%;margin-bottom:8px}
+.btn:active{opacity:.75}
+.btn-g{background:var(--g);color:#fff}
+.btn-wa{background:#25D366;color:#fff}
+.btn-out{background:transparent;border:1.5px solid var(--br);color:var(--tx)}
+.btn-del{background:var(--re);color:#A32D2D;border:none}
+.btn-sm{width:auto;padding:6px 12px;font-size:12px;margin-bottom:0}
+/* FORMS */
+.label{font-size:12px;font-weight:600;color:var(--t2);text-transform:uppercase;letter-spacing:.04em;display:block;margin-bottom:5px}
+.input{width:100%;padding:12px 14px;border-radius:10px;border:1.5px solid var(--br);font-size:15px;background:var(--wh);color:var(--tx);margin-bottom:12px;-webkit-appearance:none}
+.input:focus{outline:none;border-color:var(--g)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+/* ALERT ROWS */
+.alert-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid var(--br)}
+.alert-row:last-child{border-bottom:none}
+.alert-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0}
+.alert-info{flex:1;min-width:0}
+.alert-name{font-size:13px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.alert-desc{font-size:11px;color:var(--t2);margin-top:1px}
+/* CLIENT ITEM */
+.cli-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:.5px solid var(--br);cursor:pointer}
+.cli-item:last-child{border-bottom:none}
+.avatar{width:40px;height:40px;border-radius:50%;background:var(--gl);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--gd);flex-shrink:0}
+/* CALC BOX */
+.calc-box{background:var(--gl);border-radius:10px;padding:12px 14px;margin-bottom:12px}
+.calc-val{font-size:24px;font-weight:800;color:var(--gd)}
+.calc-sub{font-size:12px;color:var(--gd);margin-top:2px}
+/* WA PREVIEW */
+.wa-bg{background:#E5DDD5;border-radius:12px;padding:14px;margin-bottom:12px}
+.wa-bbl{background:#DCF8C6;border-radius:14px 14px 14px 3px;padding:11px 13px;font-size:13px;line-height:1.6;color:#111;max-width:88%}
+.wa-time{font-size:10px;color:#888;text-align:right;margin-top:3px}
+/* TEMPLATE ITEM */
+.tmpl-item{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;background:var(--wh);border:1.5px solid var(--br);border-radius:10px;margin-bottom:8px;cursor:pointer}
+.tmpl-item.active{border-color:var(--g)}
+.tmpl-name{font-size:14px;font-weight:600}
+.tmpl-desc{font-size:12px;color:var(--t2);margin-top:1px}
+/* BOTTOM NAV */
+.bnav{background:var(--wh);border-top:.5px solid var(--br);display:flex;padding:6px 0 calc(6px + var(--sb));flex-shrink:0}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:4px 0;background:none;border:none;cursor:pointer;color:var(--t3);font-size:10px;font-weight:500}
+.nav-btn.active{color:var(--gd)}
+.nav-ico{font-size:22px;line-height:1}
+/* MODAL */
+.modal{display:none;position:fixed;inset:0;z-index:500;background:rgba(0,0,0,0.5);align-items:flex-end}
+.modal.open{display:flex}
+.modal-box{background:var(--wh);border-radius:20px 20px 0 0;padding:20px 20px calc(20px + var(--sb));width:100%;max-height:88vh;overflow-y:auto}
+.modal-handle{width:38px;height:4px;background:var(--br);border-radius:2px;margin:0 auto 16px}
+.modal-title{font-size:18px;font-weight:700;margin-bottom:16px}
+/* TOAST */
+.toast{position:fixed;top:56px;left:50%;transform:translateX(-50%) translateY(-16px);background:#111;color:#fff;padding:9px 20px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;z-index:9999;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+/* CONFIRM */
+.confirm-box{background:var(--re);border-radius:10px;padding:14px;margin-top:10px;display:none}
+.confirm-box.show{display:block}
+.confirm-row{display:flex;gap:8px;margin-top:10px}
+.confirm-row .btn{margin-bottom:0}
+/* PROGRESS */
+.prog{height:4px;background:var(--bg);border-radius:2px;overflow:hidden;margin-top:8px}
+.prog-fill{height:100%;border-radius:2px;background:var(--g)}
+/* QUICK GRID */
+.quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+.quick-card{background:var(--wh);border-radius:12px;padding:14px;box-shadow:0 1px 4px rgba(0,0,0,0.08);cursor:pointer;border:none;text-align:left;width:100%}
+.quick-card:active{opacity:.75}
+.quick-ico{font-size:26px;margin-bottom:6px}
+.quick-t{font-size:14px;font-weight:700;color:var(--tx)}
+.quick-s{font-size:11px;color:var(--t2);margin-top:2px}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="content">
+
+    <!-- ===== INICIO ===== -->
+    <div class="page active" id="pg-inicio">
+      <div class="hdr">
+        <div class="hdr-row">
+          <div><h1>💼 MiNegocio</h1><p>Bienvenido 👋</p></div>
+          <button class="hdr-btn" onclick="goPage('pg-whatsapp',4)">🔔</button>
+        </div>
+      </div>
+      <div class="metrics" id="met-strip"></div>
+      <div class="scroll">
+        <div class="stit">Acceso rápido</div>
+        <div class="quick-grid">
+          <button class="quick-card" onclick="abrirFormCliente()"><div class="quick-ico">👤</div><div class="quick-t">Nuevo cliente</div><div class="quick-s">Agregar y guardar</div></button>
+          <button class="quick-card" onclick="goPage('pg-prestamos',1)"><div class="quick-ico">💰</div><div class="quick-t">Nuevo préstamo</div><div class="quick-s">Calcular cuotas</div></button>
+          <button class="quick-card" onclick="goPage('pg-ventas',2)"><div class="quick-ico">🛍️</div><div class="quick-t">Nueva venta</div><div class="quick-s">Registrar producto</div></button>
+          <button class="quick-card" onclick="goPage('pg-clientes',3)"><div class="quick-ico">👥</div><div class="quick-t">Mis clientes</div><div class="quick-s">Ver, editar, eliminar</div></button>
+        </div>
+        <div class="stit">Alertas del día</div>
+        <div class="card" id="alertas-box"></div>
+      </div>
+    </div>
+
+    <!-- ===== PRÉSTAMOS ===== -->
+    <div class="page" id="pg-prestamos">
+      <div class="hdr"><div class="hdr-row"><div><h1>💰 Préstamos</h1></div></div></div>
+      <div class="scroll">
+        <div class="stit">Clientes con deuda</div>
+        <div id="lista-prest"></div>
+        <div class="stit">Registrar nuevo préstamo</div>
+        <div class="card">
+          <label class="label">Cliente</label>
+          <select class="input" id="np-cli"></select>
+          <label class="label">Monto ($)</label>
+          <input class="input" type="number" id="np-monto" placeholder="500000" oninput="calcCuota()">
+          <div class="row2">
+            <div><label class="label">Interés (%)</label><input class="input" type="number" id="np-int" value="15" oninput="calcCuota()"></div>
+            <div><label class="label">Cuotas</label><input class="input" type="number" id="np-cuotas" value="4" oninput="calcCuota()"></div>
+          </div>
+          <label class="label">Frecuencia</label>
+          <select class="input" id="np-frec"><option>Semanal</option><option>Quincenal</option><option>Mensual</option></select>
+          <div id="calc-result" style="display:none" class="calc-box">
+            <div style="font-size:11px;font-weight:700;color:var(--gd);text-transform:uppercase;letter-spacing:.04em">Cuota a pagar</div>
+            <div class="calc-val" id="calc-val"></div>
+            <div class="calc-sub" id="calc-sub"></div>
+          </div>
+          <button class="btn btn-wa" onclick="guardarPrestamo()">💬 Guardar y notificar por WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== VENTAS ===== -->
+    <div class="page" id="pg-ventas">
+      <div class="hdr"><div class="hdr-row"><div><h1>🛍️ Ventas</h1></div></div></div>
+      <div class="scroll">
+        <div class="stit">Ventas recientes</div>
+        <div id="lista-ventas"></div>
+        <div class="stit">Registrar venta</div>
+        <div class="card">
+          <label class="label">Producto</label>
+          <input class="input" type="text" id="v-prod" placeholder="Nombre del producto">
+          <label class="label">Valor ($)</label>
+          <input class="input" type="number" id="v-val" placeholder="150000">
+          <label class="label">Cliente</label>
+          <select class="input" id="v-cli"></select>
+          <label class="label">Forma de pago</label>
+          <select class="input" id="v-pago"><option>Contado</option><option>Crédito</option><option>Nequi / Daviplata</option><option>Transferencia</option></select>
+          <button class="btn btn-wa" onclick="guardarVenta()">💬 Guardar y enviar recibo</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== CLIENTES ===== -->
+    <div class="page" id="pg-clientes">
+      <div class="hdr">
+        <div class="hdr-row">
+          <div><h1>👥 Clientes</h1></div>
+          <button class="hdr-btn" onclick="abrirFormCliente()">＋</button>
+        </div>
+      </div>
+      <div class="scroll">
+        <div id="lista-clientes"></div>
+      </div>
+    </div>
+
+    <!-- ===== WHATSAPP ===== -->
+    <div class="page" id="pg-whatsapp">
+      <div class="hdr"><div class="hdr-row"><div><h1>💬 WhatsApp</h1></div></div></div>
+      <div class="scroll">
+        <div class="stit">Tipo de mensaje</div>
+        <div id="tmpl-lista"></div>
+        <div class="stit">Vista previa</div>
+        <div class="wa-bg"><div class="wa-bbl" id="wa-prev-txt"></div><div class="wa-time">✓✓ ahora</div></div>
+        <div class="stit" style="margin-top:12px">Enviar a</div>
+        <div class="card">
+          <label class="label">Cliente</label>
+          <select class="input" id="wa-cli"></select>
+          <button class="btn btn-wa" onclick="abrirWA()">💬 Abrir en WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- NAV -->
+  <nav class="bnav">
+    <button class="nav-btn active" id="nav-0" onclick="goPage('pg-inicio',0)"><span class="nav-ico">🏠</span>Inicio</button>
+    <button class="nav-btn" id="nav-1" onclick="goPage('pg-prestamos',1)"><span class="nav-ico">💰</span>Préstamos</button>
+    <button class="nav-btn" id="nav-2" onclick="goPage('pg-ventas',2)"><span class="nav-ico">🛍️</span>Ventas</button>
+    <button class="nav-btn" id="nav-3" onclick="goPage('pg-clientes',3)"><span class="nav-ico">👥</span>Clientes</button>
+    <button class="nav-btn" id="nav-4" onclick="goPage('pg-whatsapp',4)"><span class="nav-ico">💬</span>WhatsApp</button>
+  </nav>
+</div>
+
+<!-- MODAL: FORM CLIENTE -->
+<div class="modal" id="m-cli" onclick="if(event.target===this)cerrar('m-cli')">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div class="modal-title" id="m-cli-titulo">Nuevo cliente</div>
+    <input type="hidden" id="cli-edit-id">
+    <label class="label">Nombre completo</label>
+    <input class="input" type="text" id="cli-nombre" placeholder="Ej: Carlos Muñoz">
+    <label class="label">WhatsApp (con código país, sin +)</label>
+    <input class="input" type="tel" id="cli-tel" placeholder="Ej: 57311234567">
+    <div class="row2">
+      <div><label class="label">Deuda ($)</label><input class="input" type="number" id="cli-deuda" placeholder="0"></div>
+      <div>
+        <label class="label">Perfil</label>
+        <select class="input" id="cli-perfil">
+          <option>Nuevo</option><option>Bueno</option><option>Cumplido</option><option>Riesgo</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-g" onclick="guardarCliente()">✓ Guardar cliente</button>
+    <button class="btn btn-out" onclick="cerrar('m-cli')">Cancelar</button>
+  </div>
+</div>
+
+<!-- MODAL: DETALLE CLIENTE -->
+<div class="modal" id="m-det" onclick="if(event.target===this)cerrar('m-det')">
+  <div class="modal-box">
+    <div class="modal-handle"></div>
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
+      <div class="avatar" id="det-av"></div>
+      <div><div style="font-size:18px;font-weight:700" id="det-nom"></div><div style="font-size:13px;color:var(--t2)" id="det-tel"></div></div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:.5px solid var(--br)">
+        <span style="color:var(--t2)">Deuda total</span><span style="font-weight:700" id="det-deu"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0">
+        <span style="color:var(--t2)">Perfil</span><span id="det-per"></span>
+      </div>
+    </div>
+    <button class="btn btn-wa" id="det-wa">💬 Enviar mensaje WhatsApp</button>
+    <button class="btn btn-out" id="det-edit">✏️ Editar cliente</button>
+    <button class="btn btn-del" onclick="mostrarConfirm()">🗑️ Eliminar cliente</button>
+    <div class="confirm-box" id="confirm-box">
+      <div style="font-size:14px;font-weight:700;color:#A32D2D">⚠️ ¿Eliminar este cliente?</div>
+      <div style="font-size:12px;color:var(--t2);margin-top:4px">Esta acción no se puede deshacer.</div>
+      <div class="confirm-row">
+        <button class="btn btn-del" id="confirm-si">Sí, eliminar</button>
+        <button class="btn btn-out" onclick="document.getElementById('confirm-box').classList.remove('show')">Cancelar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast-msg"></div>
+
+<script>
+// ── UTILS ──────────────────────────────────────────────────
+function ld(k){try{var d=localStorage.getItem(k);return d?JSON.parse(d):null}catch(e){return null}}
+function sv(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}
+function toast(m){var t=document.getElementById('toast-msg');t.textContent=m;t.classList.add('show');setTimeout(function(){t.classList.remove('show')},2800)}
+function cerrar(id){document.getElementById(id).classList.remove('open');document.getElementById('confirm-box').classList.remove('show')}
+function ini(n){return n.split(' ').slice(0,2).map(function(x){return x[0]||''}).join('').toUpperCase()}
+function fmt(n){return Number(n).toLocaleString('es-CO')}
+var BADGE={Bueno:'b-g',Cumplido:'b-b',Riesgo:'b-r',Nuevo:'b-gr'};
+var TMPLS={
+  cobro:  {ic:'🔔',n:'Cobro de cuota',    d:'Para cuotas vencidas',   m:function(n,v){return '🔔 *Cobro de cuota*\nHola '+n+' 👋, tienes una cuota de $'+v+' vencida. Por favor coordina el pago. ¡Gracias! 🙏'}},
+  record: {ic:'📅',n:'Recordatorio',      d:'Cuota próxima a vencer', m:function(n,v){return '📅 *Recordatorio*\nHola '+n+' 😊, tu cuota de $'+v+' vence pronto. ¡Estamos al pendiente!'}},
+  recibo: {ic:'✅',n:'Recibo de pago',    d:'Confirmar pago recibido', m:function(n,v){return '✅ *Pago recibido*\nHola '+n+', confirmamos tu pago de $'+v+'. ¡Gracias por tu puntualidad! 🙏'}},
+  nuevo:  {ic:'💰',n:'Préstamo aprobado', d:'Notificar nuevo préstamo',m:function(n,v){return '💰 *Préstamo aprobado*\nHola '+n+' 😊, tu préstamo de $'+v+' fue aprobado. Cualquier duda escríbenos.'}},
+  promo:  {ic:'🛍️',n:'Promoción',         d:'Ofertas a tus clientes', m:function(n){return '🛍️ *Oferta especial*\nHola '+n+'! Esta semana tenemos novedades. Escríbenos para ver el catálogo 💳'}}
+};
+var tmplActivo='cobro';
+var cliActivo=null;
+
+// ── DATA ───────────────────────────────────────────────────
+var clientes=ld('mn-c')||[
+  {id:'c1',nombre:'Carlos Muñoz', tel:'57311234567',deuda:1800000,perfil:'Riesgo'},
+  {id:'c2',nombre:'Ana Ramírez',  tel:'57300456789',deuda:800000, perfil:'Bueno'},
+  {id:'c3',nombre:'Luis Torres',  tel:'57320789012',deuda:2500000,perfil:'Cumplido'},
+  {id:'c4',nombre:'María López',  tel:'57315111222',deuda:220000, perfil:'Nuevo'}
+];
+var ventas=ld('mn-v')||[
+  {id:'v1',prod:'Zapatos ref. 42',val:180000,cli:'Ana Ramírez',  pago:'Contado', est:'Pagado'},
+  {id:'v2',prod:'Bolso cuero',    val:220000,cli:'María López',  pago:'Crédito', est:'Crédito'},
+  {id:'v3',prod:'Perfume import.',val:85000, cli:'Carlos Muñoz', pago:'Crédito', est:'Vencido'}
+];
+
+// ── NAVEGACIÓN ─────────────────────────────────────────────
+function goPage(id,idx){
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active')});
+  document.getElementById(id).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(function(b,i){b.classList.toggle('active',i===idx)});
+  if(id==='pg-clientes')  renderClientes();
+  if(id==='pg-prestamos') renderPrestamos();
+  if(id==='pg-ventas')    renderVentas();
+  if(id==='pg-whatsapp')  renderWA();
+}
+
+// ── INICIO ─────────────────────────────────────────────────
+function renderInicio(){
+  var td=clientes.reduce(function(s,c){return s+c.deuda},0);
+  var tv=ventas.reduce(function(s,v){return s+v.val},0);
+  var nv=ventas.filter(function(v){return v.est==='Vencido'}).length;
+  var nr=clientes.filter(function(c){return c.perfil==='Riesgo'}).length;
+  document.getElementById('met-strip').innerHTML=
+    '<div class="met"><div class="met-l">Capital en deuda</div><div class="met-v">$'+fmt(td)+'</div><div class="met-s">'+clientes.length+' clientes</div></div>'+
+    '<div class="met"><div class="met-l">Ventas</div><div class="met-v">$'+fmt(tv)+'</div><div class="met-s">'+ventas.length+' registros</div></div>'+
+    '<div class="met'+(nv||nr?' warn':'')+'"><div class="met-l">'+(nv||nr?'⚠️ ':'')+'Alertas</div><div class="met-v">'+(nv+nr)+'</div><div class="met-s">hoy</div></div>'+
+    '<div class="met"><div class="met-l">Clientes</div><div class="met-v">'+clientes.length+'</div><div class="met-s">registrados</div></div>';
+  var html='';
+  clientes.filter(function(c){return c.perfil==='Riesgo'}).forEach(function(c){
+    html+='<div class="alert-row"><div class="alert-icon" style="background:var(--re)">⏰</div><div class="alert-info"><div class="alert-name">'+c.nombre+'</div><div class="alert-desc">Deuda $'+fmt(c.deuda)+'</div></div><button class="btn btn-sm btn-wa" onclick="enviarWA(\''+c.id+'\',\'cobro\')">💬</button></div>';
+  });
+  ventas.filter(function(v){return v.est==='Vencido'}).forEach(function(v){
+    html+='<div class="alert-row"><div class="alert-icon" style="background:var(--am)">🛍️</div><div class="alert-info"><div class="alert-name">'+v.cli+'</div><div class="alert-desc">'+v.prod+' · $'+fmt(v.val)+'</div></div><button class="btn btn-sm btn-wa" onclick="enviarWAPorNombre(\''+v.cli+'\',\'cobro\')">💬</button></div>';
+  });
+  document.getElementById('alertas-box').innerHTML=html||'<div style="text-align:center;padding:12px;font-size:13px;color:var(--t2)">✅ Sin alertas hoy</div>';
+}
+
+// ── CLIENTES ───────────────────────────────────────────────
+function renderClientes(){
+  var el=document.getElementById('lista-clientes');
+  if(!clientes.length){el.innerHTML='<div style="text-align:center;padding:30px;font-size:13px;color:var(--t2)">No tienes clientes.<br>Toca ＋ para agregar uno.</div>';return}
+  el.innerHTML='<div class="card">'+clientes.map(function(c){
+    return '<div class="cli-item" onclick="verDetalle(\''+c.id+'\')">'+
+      '<div class="avatar">'+ini(c.nombre)+'</div>'+
+      '<div style="flex:1;min-width:0"><div style="font-size:14px;font-weight:600">'+c.nombre+'</div><div style="font-size:12px;color:var(--t2)">+'+c.tel+'</div></div>'+
+      '<div style="text-align:right"><div style="font-size:13px;font-weight:700">$'+fmt(c.deuda)+'</div><span class="badge '+(BADGE[c.perfil]||'b-gr')+'">'+c.perfil+'</span></div>'+
+    '</div>';
+  }).join('')+'</div>';
+}
+
+function abrirFormCliente(id){
+  document.getElementById('cli-edit-id').value=id||'';
+  if(id){
+    var c=clientes.find(function(x){return x.id===id});
+    if(!c)return;
+    document.getElementById('m-cli-titulo').textContent='Editar cliente';
+    document.getElementById('cli-nombre').value=c.nombre;
+    document.getElementById('cli-tel').value=c.tel;
+    document.getElementById('cli-deuda').value=c.deuda;
+    document.getElementById('cli-perfil').value=c.perfil;
+  } else {
+    document.getElementById('m-cli-titulo').textContent='Nuevo cliente';
+    document.getElementById('cli-nombre').value='';
+    document.getElementById('cli-tel').value='';
+    document.getElementById('cli-deuda').value='';
+    document.getElementById('cli-perfil').value='Nuevo';
+  }
+  document.getElementById('m-cli').classList.add('open');
+}
+
+function guardarCliente(){
+  var nombre=document.getElementById('cli-nombre').value.trim();
+  var tel=document.getElementById('cli-tel').value.trim().replace(/\D/g,'');
+  var deuda=parseInt(document.getElementById('cli-deuda').value)||0;
+  var perfil=document.getElementById('cli-perfil').value;
+  var id=document.getElementById('cli-edit-id').value;
+  if(!nombre||!tel){toast('Completa nombre y WhatsApp');return}
+  if(id){
+    var i=clientes.findIndex(function(x){return x.id===id});
+    if(i>=0)clientes[i]={id:id,nombre:nombre,tel:tel,deuda:deuda,perfil:perfil};
+    toast('✓ Cliente actualizado');
+  } else {
+    clientes.push({id:'c'+Date.now(),nombre:nombre,tel:tel,deuda:deuda,perfil:perfil});
+    toast('✓ Cliente agregado');
+  }
+  sv('mn-c',clientes);
+  cerrar('m-cli');
+  renderClientes();
+  refreshSelects();
+  renderInicio();
+}
+
+function verDetalle(id){
+  var c=clientes.find(function(x){return x.id===id});
+  if(!c)return;
+  cliActivo=c;
+  document.getElementById('det-av').textContent=ini(c.nombre);
+  document.getElementById('det-nom').textContent=c.nombre;
+  document.getElementById('det-tel').textContent='+'+c.tel;
+  document.getElementById('det-deu').textContent='$'+fmt(c.deuda);
+  document.getElementById('det-per').innerHTML='<span class="badge '+(BADGE[c.perfil]||'b-gr')+'">'+c.perfil+'</span>';
+  document.getElementById('det-wa').onclick=function(){enviarWA(c.id,'cobro')};
+  document.getElementById('det-edit').onclick=function(){cerrar('m-det');setTimeout(function(){abrirFormCliente(c.id)},200)};
+  document.getElementById('confirm-si').onclick=function(){eliminarCliente(c.id)};
+  document.getElementById('confirm-box').classList.remove('show');
+  document.getElementById('m-det').classList.add('open');
+}
+
+function mostrarConfirm(){document.getElementById('confirm-box').classList.add('show')}
+
+function eliminarCliente(id){
+  clientes=clientes.filter(function(x){return x.id!==id});
+  sv('mn-c',clientes);
+  cerrar('m-det');
+  renderClientes();
+  refreshSelects();
+  renderInicio();
+  toast('🗑️ Cliente eliminado');
+}
+
+// ── PRÉSTAMOS ──────────────────────────────────────────────
+function renderPrestamos(){
+  var el=document.getElementById('lista-prest');
+  var activos=clientes.filter(function(c){return c.deuda>0});
+  if(!activos.length){el.innerHTML='<div style="font-size:13px;color:var(--t2);padding:8px 0">No hay préstamos activos.</div>';return}
+  el.innerHTML=activos.map(function(c){
+    return '<div class="card" style="margin-bottom:10px">'+
+      '<div class="card-row"><div><div style="font-size:15px;font-weight:600">'+c.nombre+'</div><div style="font-size:12px;color:var(--t2)">Deuda: $'+fmt(c.deuda)+'</div></div><span class="badge '+(BADGE[c.perfil]||'b-gr')+'">'+c.perfil+'</span></div>'+
+      '<div class="prog"><div class="prog-fill" style="width:60%"></div></div>'+
+      '<div style="margin-top:10px;display:flex;gap:8px">'+
+        '<button class="btn btn-sm btn-wa" onclick="enviarWA(\''+c.id+'\',\'cobro\')">💬 Cobrar</button>'+
+        '<button class="btn btn-sm btn-out" onclick="marcarPrestamoPagado(\''+c.id+'\')">✅ Pagado</button>'+
+        '<button class="btn btn-sm btn-del" onclick="eliminarPrestamo(\''+c.id+'\')">🗑️</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function calcCuota(){
+  var m=parseFloat(document.getElementById('np-monto').value)||0;
+  var i=parseFloat(document.getElementById('np-int').value)||15;
+  var n=parseInt(document.getElementById('np-cuotas').value)||4;
+  var box=document.getElementById('calc-result');
+  if(m<=0){box.style.display='none';return}
+  var total=Math.round(m*(1+i/100));
+  var cuota=Math.round(total/n);
+  document.getElementById('calc-val').textContent='$'+fmt(cuota);
+  document.getElementById('calc-sub').textContent='Total a recibir: $'+fmt(total)+' · '+n+' pagos';
+  box.style.display='block';
+}
+
+function guardarPrestamo(){
+  var sel=document.getElementById('np-cli');
+  var cid=sel.value;
+  var monto=parseFloat(document.getElementById('np-monto').value)||0;
+  if(!cid||!monto){toast('Completa cliente y monto');return}
+  var c=clientes.find(function(x){return x.id===cid});
+  if(!c)return;
+  c.deuda+=monto;
+  sv('mn-c',clientes);
+  var msg=TMPLS.nuevo.m(c.nombre.split(' ')[0],fmt(monto));
+  window.open('https://wa.me/'+c.tel+'?text='+encodeURIComponent(msg),'_blank');
+  toast('✓ Préstamo guardado');
+  renderPrestamos();renderInicio();
+}
+
+function marcarPrestamoPagado(id){
+  var c=clientes.find(function(x){return x.id===id});
+  if(!c)return;
+  if(confirm('¿Marcar el préstamo de '+c.nombre+' como pagado? La deuda quedará en $0.')){
+    c.deuda=0;c.perfil='Cumplido';
+    sv('mn-c',clientes);
+    renderPrestamos();renderInicio();refreshSelects();
+    toast('✅ Préstamo de '+c.nombre+' marcado como pagado');
+  }
+}
+function eliminarPrestamo(id){
+  var c=clientes.find(function(x){return x.id===id});
+  if(!c)return;
+  if(confirm('¿Eliminar el préstamo de '+c.nombre+'? Solo se borra la deuda, el cliente queda en tu lista.')){
+    c.deuda=0;
+    sv('mn-c',clientes);
+    renderPrestamos();renderInicio();
+    toast('🗑️ Préstamo eliminado');
+  }
+}
+
+// ── VENTAS ─────────────────────────────────────────────────
+function renderVentas(){
+  var el=document.getElementById('lista-ventas');
+  var EC={Pagado:'b-g',Crédito:'b-a',Vencido:'b-r'};
+  if(!ventas.length){el.innerHTML='<div style="font-size:13px;color:var(--t2);padding:8px 0">No hay ventas registradas.</div>';return}
+  el.innerHTML=ventas.slice().reverse().map(function(v){
+    return '<div class="card" style="margin-bottom:10px">'+
+      '<div class="card-row"><div><div style="font-size:15px;font-weight:600">'+v.prod+'</div><div style="font-size:12px;color:var(--t2)">'+v.cli+' · '+v.pago+'</div></div><div style="text-align:right"><div style="font-size:15px;font-weight:700">$'+fmt(v.val)+'</div><span class="badge '+(EC[v.est]||'b-gr')+'">'+v.est+'</span></div></div>'+
+      '<div style="margin-top:10px;display:flex;gap:8px">'+
+        '<button class="btn btn-sm btn-wa" onclick="enviarWAPorNombre(\''+v.cli+'\',\'recibo\')">💬 Recibo</button>'+
+        (v.est!=='Pagado'?'<button class="btn btn-sm btn-out" onclick="marcarVentaPagada(\''+v.id+'\')">✅ Pagada</button>':'')+
+        '<button class="btn btn-sm btn-del" onclick="eliminarVenta(\''+v.id+'\')">🗑️</button>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+}
+
+function guardarVenta(){
+  var prod=document.getElementById('v-prod').value.trim();
+  var val=parseFloat(document.getElementById('v-val').value)||0;
+  var sel=document.getElementById('v-cli');
+  var cid=sel.value;
+  var pago=document.getElementById('v-pago').value;
+  if(!prod||!val||!cid){toast('Completa todos los campos');return}
+  var c=clientes.find(function(x){return x.id===cid});
+  var cnom=c?c.nombre:'';
+  var est=(pago==='Contado'||pago==='Nequi / Daviplata'||pago==='Transferencia')?'Pagado':'Crédito';
+  ventas.push({id:'v'+Date.now(),prod:prod,val:val,cli:cnom,pago:pago,est:est});
+  sv('mn-v',ventas);
+  if(c){
+    var msg='✅ *Recibo de venta*\nHola '+c.nombre.split(' ')[0]+' 😊\n\n📦 '+prod+'\n💵 $'+fmt(val)+'\nPago: '+pago+'\n\n¡Gracias! 🙏';
+    window.open('https://wa.me/'+c.tel+'?text='+encodeURIComponent(msg),'_blank');
+  }
+  document.getElementById('v-prod').value='';
+  document.getElementById('v-val').value='';
+  renderVentas();renderInicio();
+  toast('✓ Venta guardada');
+}
+
+function marcarVentaPagada(id){
+  var v=ventas.find(function(x){return x.id===id});
+  if(!v)return;
+  v.est='Pagado';
+  sv('mn-v',ventas);
+  renderVentas();renderInicio();
+  toast('✅ Venta marcada como pagada');
+}
+function eliminarVenta(id){
+  var v=ventas.find(function(x){return x.id===id});
+  if(!v)return;
+  if(confirm('¿Eliminar la venta de "'+v.prod+'"? Esta acción no se puede deshacer.')){
+    ventas=ventas.filter(function(x){return x.id!==id});
+    sv('mn-v',ventas);
+    renderVentas();renderInicio();
+    toast('🗑️ Venta eliminada');
+  }
+}
+
+// ── WHATSAPP ───────────────────────────────────────────────
+function renderWA(){
+  var keys=Object.keys(TMPLS);
+  document.getElementById('tmpl-lista').innerHTML=keys.map(function(k){
+    var t=TMPLS[k];
+    return '<div class="tmpl-item'+(k===tmplActivo?' active':'')+'" onclick="selTmpl(\''+k+'\')">'+
+      '<div><div class="tmpl-name">'+t.ic+' '+t.n+'</div><div class="tmpl-desc">'+t.d+'</div></div>'+
+      '<span style="color:'+(k===tmplActivo?'var(--g)':'var(--t3)')+'">'+( k===tmplActivo?'✓':'›')+'</span>'+
+    '</div>';
+  }).join('');
+  var n=clientes[0]?clientes[0].nombre.split(' ')[0]:'Cliente';
+  var msg=TMPLS[tmplActivo].m(n,'280.000');
+  document.getElementById('wa-prev-txt').innerHTML=msg.replace(/\n/g,'<br>').replace(/\*(.*?)\*/g,'<strong>$1</strong>');
+}
+
+function selTmpl(k){tmplActivo=k;renderWA()}
+
+function abrirWA(){
+  var cid=document.getElementById('wa-cli').value;
+  var c=clientes.find(function(x){return x.id===cid});
+  if(!c){toast('Selecciona un cliente');return}
+  var msg=TMPLS[tmplActivo].m(c.nombre.split(' ')[0],fmt(c.deuda));
+  window.open('https://wa.me/'+c.tel+'?text='+encodeURIComponent(msg),'_blank');
+  toast('Abriendo WhatsApp para '+c.nombre);
+}
+
+function enviarWA(id,tipo){
+  var c=clientes.find(function(x){return x.id===id});
+  if(!c)return;
+  var t=TMPLS[tipo]||TMPLS.cobro;
+  var msg=t.m(c.nombre.split(' ')[0],fmt(c.deuda));
+  window.open('https://wa.me/'+c.tel+'?text='+encodeURIComponent(msg),'_blank');
+}
+
+function enviarWAPorNombre(nombre,tipo){
+  var c=clientes.find(function(x){return x.nombre===nombre});
+  if(c)enviarWA(c.id,tipo);
+}
+
+// ── SELECTS ────────────────────────────────────────────────
+function refreshSelects(){
+  var ops='<option value="">-- Seleccionar --</option>'+clientes.map(function(c){return '<option value="'+c.id+'">'+c.nombre+'</option>'}).join('');
+  ['np-cli','wa-cli','v-cli'].forEach(function(id){var el=document.getElementById(id);if(el)el.innerHTML=ops});
+}
+
+// ── INIT ───────────────────────────────────────────────────
+refreshSelects();
+renderInicio();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js').catch(function(){});
+</script>
+</body>
+</html>
